@@ -16,13 +16,17 @@ const tenderly = axios.create({
   },
 });
 
-const CHAIN_ID = 3030;
+const CHAIN_ID = process.env.CHAIN_ID || 3030;
 
 class TenderlyFork {
   async init() {
+    console.log(`Creating fork for ${FORK_NETWORK_ID} on ${CHAIN_ID}`);
     const response = await tenderly.post(
       `account/${TENDERLY_ACCOUNT}/project/${TENDERLY_PROJECT}/fork`,
-      { network_id: FORK_NETWORK_ID, chain_config: { chain_id: CHAIN_ID } }
+      {
+        network_id: FORK_NETWORK_ID,
+        chain_config: { chain_id: Number(CHAIN_ID) },
+      }
     );
     this.fork_id = response.data.simulation_fork.id;
   }
@@ -54,9 +58,18 @@ async function main() {
   console.log("chainId", CHAIN_ID);
   console.log("");
   console.log("setting locale storage");
-  console.log('localStorage.setItem("fork_enabled", "true")');
-  console.log(`localStorage.setItem("forkNetworkId", ${CHAIN_ID})`);
-  console.log(`localStorage.setItem("forkRPCUrl", "${fork.get_rpc_url()}")`);
+  if (FORK_NETWORK_ID === "1") {
+    console.log('localStorage.setItem("fork_enabled", "true")');
+    console.log(`localStorage.setItem("forkNetworkId", ${CHAIN_ID})`);
+    console.log(`localStorage.setItem("forkRPCUrl", "${fork.get_rpc_url()}")`);
+  }
+  if (FORK_NETWORK_ID === "137") {
+    console.log('localStorage.setItem("polygon_fork_enabled", "true")');
+    console.log(`localStorage.setItem("polygonForkNetworkId", ${CHAIN_ID})`);
+    console.log(
+      `localStorage.setItem("polygonForkRPCUrl", "${fork.get_rpc_url()}")`
+    );
+  }
 }
 
 main().catch(function (err) {

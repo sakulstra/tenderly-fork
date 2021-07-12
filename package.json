@@ -11,7 +11,8 @@
   "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node tenderly.js"
+    "start": "node tenderly.js",
+    "start:polygon": "FORK_NETWORK_ID=137 CHAIN_ID=1338 node tenderly.js"
   },
   "author": "sakulstra",
   "license": "MIT"
