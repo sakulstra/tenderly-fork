@@ -67,7 +67,7 @@ async function main() {
     console.log('localStorage.setItem("polygon_fork_enabled", "true")');
   }
   if (FORK_NETWORK_ID === "43114") {
-    console.log('localStorage.setItem("polygon_fork_enabled", "true")');
+    console.log('localStorage.setItem("avalanche_fork_enabled", "true")');
   }
   console.log(`localStorage.setItem("forkNetworkId", ${CHAIN_ID})`);
   console.log(`localStorage.setItem("forkRPCUrl", "${fork.get_rpc_url()}")`);
