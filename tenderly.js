@@ -32,7 +32,7 @@ class TenderlyFork {
     this.fork_id = response.data.simulation_fork.id;
   }
 
-  async fund_account(address) {
+  async fund_account(address, amount) {
     if (!this.fork_id) throw new Error("Fork not initialized!");
     await tenderly.post(
       `account/${TENDERLY_ACCOUNT}/project/${TENDERLY_PROJECT}/fork/${this.fork_id}/balance`,
