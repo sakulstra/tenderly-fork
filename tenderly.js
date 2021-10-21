@@ -62,15 +62,23 @@ async function main() {
   console.log("setting locale storage");
   if (FORK_NETWORK_ID === "1") {
     console.log('localStorage.setItem("fork_enabled", "true")');
+    console.log(`localStorage.setItem("forkNetworkId", ${CHAIN_ID})`);
+    console.log(`localStorage.setItem("forkRPCUrl", "${fork.get_rpc_url()}")`);
   }
   if (FORK_NETWORK_ID === "137") {
     console.log('localStorage.setItem("polygon_fork_enabled", "true")');
+    console.log(`localStorage.setItem("polygonForkNetworkId", ${CHAIN_ID})`);
+    console.log(
+      `localStorage.setItem("polygonForkRPCUrl", "${fork.get_rpc_url()}")`
+    );
   }
   if (FORK_NETWORK_ID === "43114") {
     console.log('localStorage.setItem("avalanche_fork_enabled", "true")');
+    console.log(`localStorage.setItem("avalancheForkNetworkId", ${CHAIN_ID})`);
+    console.log(
+      `localStorage.setItem("avalancheForkRPCUrl", "${fork.get_rpc_url()}")`
+    );
   }
-  console.log(`localStorage.setItem("forkNetworkId", ${CHAIN_ID})`);
-  console.log(`localStorage.setItem("forkRPCUrl", "${fork.get_rpc_url()}")`);
 }
 
 main().catch(function (err) {
