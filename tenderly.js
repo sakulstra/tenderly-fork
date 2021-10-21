@@ -5,6 +5,7 @@ const FORK_NETWORK_ID = process.env.FORK_NETWORK_ID || "1";
 const TENDERLY_KEY = process.env.TENDERLY_KEY;
 const TENDERLY_ACCOUNT = process.env.TENDERLY_ACCOUNT;
 const TENDERLY_PROJECT = process.env.TENDERLY_PROJECT;
+const ETH_ADDRESS = process.env.ETH_ADDRESS;
 if (!TENDERLY_KEY) throw new Error("Tenderly key not set!");
 if (!TENDERLY_ACCOUNT) throw new Error("Tenderly account not set!");
 if (!TENDERLY_PROJECT) throw new Error("Tenderly project not set!");
@@ -35,7 +36,7 @@ class TenderlyFork {
     if (!this.fork_id) throw new Error("Fork not initialized!");
     await tenderly.post(
       `account/${TENDERLY_ACCOUNT}/project/${TENDERLY_PROJECT}/fork/${this.fork_id}/balance`,
-      { accounts: [address] }
+      { accounts: [address], amount: amount }
     );
   }
 
@@ -57,19 +58,19 @@ async function main() {
   console.log("rpcUrl", fork.get_rpc_url());
   console.log("chainId", CHAIN_ID);
   console.log("");
+  await fork.fund_account(ETH_ADDRESS, 10000);
   console.log("setting locale storage");
   if (FORK_NETWORK_ID === "1") {
     console.log('localStorage.setItem("fork_enabled", "true")');
-    console.log(`localStorage.setItem("forkNetworkId", ${CHAIN_ID})`);
-    console.log(`localStorage.setItem("forkRPCUrl", "${fork.get_rpc_url()}")`);
   }
   if (FORK_NETWORK_ID === "137") {
     console.log('localStorage.setItem("polygon_fork_enabled", "true")');
-    console.log(`localStorage.setItem("polygonForkNetworkId", ${CHAIN_ID})`);
-    console.log(
-      `localStorage.setItem("polygonForkRPCUrl", "${fork.get_rpc_url()}")`
-    );
   }
+  if (FORK_NETWORK_ID === "43114") {
+    console.log('localStorage.setItem("polygon_fork_enabled", "true")');
+  }
+  console.log(`localStorage.setItem("forkNetworkId", ${CHAIN_ID})`);
+  console.log(`localStorage.setItem("forkRPCUrl", "${fork.get_rpc_url()}")`);
 }
 
 main().catch(function (err) {
