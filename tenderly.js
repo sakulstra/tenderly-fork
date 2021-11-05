@@ -5,7 +5,6 @@ const FORK_NETWORK_ID = process.env.FORK_NETWORK_ID || "1";
 const TENDERLY_KEY = process.env.TENDERLY_KEY;
 const TENDERLY_ACCOUNT = process.env.TENDERLY_ACCOUNT;
 const TENDERLY_PROJECT = process.env.TENDERLY_PROJECT;
-const ETH_ADDRESS = process.env.ETH_ADDRESS;
 if (!TENDERLY_KEY) throw new Error("Tenderly key not set!");
 if (!TENDERLY_ACCOUNT) throw new Error("Tenderly account not set!");
 if (!TENDERLY_PROJECT) throw new Error("Tenderly project not set!");
@@ -20,6 +19,10 @@ const tenderly = axios.create({
 const CHAIN_ID = process.env.CHAIN_ID || 3030;
 
 class TenderlyFork {
+  constructor(fork_id) {
+    if (fork_id) this.fork_id = fork_id;
+  }
+
   async init() {
     console.log(`Creating fork for ${FORK_NETWORK_ID} on ${CHAIN_ID}`);
     const response = await tenderly.post(
@@ -36,7 +39,7 @@ class TenderlyFork {
     if (!this.fork_id) throw new Error("Fork not initialized!");
     await tenderly.post(
       `account/${TENDERLY_ACCOUNT}/project/${TENDERLY_PROJECT}/fork/${this.fork_id}/balance`,
-      { accounts: [address], amount: amount }
+      { accounts: [address], amount }
     );
   }
 
@@ -51,49 +54,5 @@ class TenderlyFork {
     );
   }
 }
-const fork = new TenderlyFork();
 
-async function main() {
-  await fork.init();
-  console.log("rpcUrl", fork.get_rpc_url());
-  console.log("chainId", CHAIN_ID);
-  console.log("");
-  await fork.fund_account(ETH_ADDRESS, 10000);
-  console.log("setting locale storage");
-  if (FORK_NETWORK_ID === "1") {
-    console.log('localStorage.setItem("fork_enabled", "true")');
-    console.log(`localStorage.setItem("forkNetworkId", ${CHAIN_ID})`);
-    console.log(`localStorage.setItem("forkRPCUrl", "${fork.get_rpc_url()}")`);
-  }
-  if (FORK_NETWORK_ID === "137") {
-    console.log('localStorage.setItem("polygon_fork_enabled", "true")');
-    console.log(`localStorage.setItem("polygonForkNetworkId", ${CHAIN_ID})`);
-    console.log(
-      `localStorage.setItem("polygonForkRPCUrl", "${fork.get_rpc_url()}")`
-    );
-  }
-  if (FORK_NETWORK_ID === "43114") {
-    console.log('localStorage.setItem("avalanche_fork_enabled", "true")');
-    console.log(`localStorage.setItem("avalancheForkNetworkId", ${CHAIN_ID})`);
-    console.log(
-      `localStorage.setItem("avalancheForkRPCUrl", "${fork.get_rpc_url()}")`
-    );
-  }
-}
-
-main().catch(function (err) {
-  console.error(err);
-  process.exit(1);
-});
-
-// keep process alive
-process.stdin.resume();
-
-// delete fork on exit
-process.on("SIGINT", function () {
-  console.log("Caught interrupt signal");
-  fork.deleteFork().then((d) => {
-    console.log("fork deleted");
-    process.exit(0);
-  });
-});
+module.exports = { TenderlyFork };
