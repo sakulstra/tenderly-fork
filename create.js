@@ -1,6 +1,8 @@
 const { TenderlyFork } = require("./tenderly");
 
 const ETH_ADDRESS = process.env.ETH_ADDRESS;
+const CHAIN_ID = process.env.CHAIN_ID || 3030;
+const FORK_NETWORK_ID = process.env.FORK_NETWORK_ID || "1";
 const fork = new TenderlyFork();
 
 async function main() {

@@ -6,6 +6,6 @@ const FORK_ID = process.env.FORK_ID;
 if (!FORK_ID)
   throw new Error("you need to specify a FORK_ID to fund an address");
 
-const fork = new TenderlyFork();
+const fork = new TenderlyFork(FORK_ID);
 
-await fork.fund_account(ETH_ADDRESS, 10000);
+fork.fund_account(ETH_ADDRESS, 10000);
