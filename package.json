@@ -4,7 +4,8 @@
   "description": "",
   "main": "tenderly.js",
   "dependencies": {
-    "@aave/contract-helpers": "^0.23.0",
+    "@aave/contract-helpers": "^0.24.2",
+    "@aave/protocol-js": "^4.3.0",
     "axios": "^0.21.1",
     "dotenv": "^8.2.0",
     "ethers": "^5.5.1"
