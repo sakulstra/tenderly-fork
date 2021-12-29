@@ -44,6 +44,7 @@ class TenderlyFork {
       `account/${TENDERLY_ACCOUNT}/project/${TENDERLY_PROJECT}/fork/${this.fork_id}/balance`,
       { accounts: [address], amount }
     );
+    console.log(`funded account ${address} with ${amount}`);
   }
 
   get_rpc_url() {
