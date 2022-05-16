@@ -1,34 +1,33 @@
+require("dotenv").config();
 const { TenderlyFork } = require("./tenderly");
 
 const ETH_ADDRESS = process.env.ETH_ADDRESS;
 const fork = new TenderlyFork();
 
+const CHAIN_ID = process.env.CHAIN_ID || 3030;
+const FORK_NETWORK_ID = process.env.FORK_NETWORK_ID || "1";
+
 async function main() {
-  await fork.init();
+  await fork.init(FORK_NETWORK_ID, CHAIN_ID);
   console.log("rpcUrl", fork.get_rpc_url());
   console.log("chainId", CHAIN_ID);
   console.log("");
-  if (ETH_ADDRESS) await fork.fund_account(ETH_ADDRESS, 10000);
-  console.log("setting locale storage");
-  if (FORK_NETWORK_ID === "1") {
-    console.log('localStorage.setItem("fork_enabled", "true")');
-    console.log(`localStorage.setItem("forkNetworkId", ${CHAIN_ID})`);
-    console.log(`localStorage.setItem("forkRPCUrl", "${fork.get_rpc_url()}")`);
+  if (ETH_ADDRESS) {
+    console.log(`Funding ${ETH_ADDRESS} with 10000 of the native currency.`);
+    await fork.fund_account(ETH_ADDRESS, 10000);
+  } else {
+    console.log("No ETH_ADDRESS was provided so funding is skipped.");
   }
-  if (FORK_NETWORK_ID === "137") {
-    console.log('localStorage.setItem("polygon_fork_enabled", "true")');
-    console.log(`localStorage.setItem("polygonForkNetworkId", ${CHAIN_ID})`);
-    console.log(
-      `localStorage.setItem("polygonForkRPCUrl", "${fork.get_rpc_url()}")`
-    );
-  }
-  if (FORK_NETWORK_ID === "43114") {
-    console.log('localStorage.setItem("avalanche_fork_enabled", "true")');
-    console.log(`localStorage.setItem("avalancheForkNetworkId", ${CHAIN_ID})`);
-    console.log(
-      `localStorage.setItem("avalancheForkRPCUrl", "${fork.get_rpc_url()}")`
-    );
-  }
+  console.log(
+    "To use this fork on the aave interface type the following commands in the console."
+  );
+  console.log("--------------");
+  console.log(`localStorage.setItem('forkEnabled', 'true');`);
+  console.log(`localStorage.setItem('forkBaseChainId', ${FORK_NETWORK_ID});`);
+  console.log(`localStorage.setItem('forkNetworkId', ${CHAIN_ID});`);
+  console.log(`localStorage.setItem("forkRPCUrl", "${fork.get_rpc_url()}");`);
+  console.log("--------------");
+  console.log("warning: the fork will be deleted once this terminal is closed");
 }
 
 main().catch(function (err) {

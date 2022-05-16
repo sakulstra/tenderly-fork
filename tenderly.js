@@ -1,7 +1,6 @@
 require("dotenv").config();
 const axios = require("axios");
 
-const FORK_NETWORK_ID = process.env.FORK_NETWORK_ID || "1";
 const TENDERLY_KEY = process.env.TENDERLY_KEY;
 const TENDERLY_ACCOUNT = process.env.TENDERLY_ACCOUNT;
 const TENDERLY_PROJECT = process.env.TENDERLY_PROJECT;
@@ -16,20 +15,18 @@ const tenderly = axios.create({
   },
 });
 
-const CHAIN_ID = process.env.CHAIN_ID || 3030;
-
 class TenderlyFork {
   constructor(fork_id) {
     if (fork_id) this.fork_id = fork_id;
   }
 
-  async init() {
-    console.log(`Creating fork for ${FORK_NETWORK_ID} on ${CHAIN_ID}`);
+  async init(forkNetworkId, chainId) {
+    console.log(`Creating fork for ${forkNetworkId} on ${chainId}`);
     const response = await tenderly.post(
       `account/${TENDERLY_ACCOUNT}/project/${TENDERLY_PROJECT}/fork`,
       {
-        network_id: FORK_NETWORK_ID,
-        chain_config: { chain_id: Number(CHAIN_ID) },
+        network_id: forkNetworkId,
+        chain_config: { chain_id: Number(chainId) },
       }
     );
     this.fork_id = response.data.simulation_fork.id;

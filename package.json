@@ -8,12 +8,9 @@
     "dotenv": "^8.2.0",
     "ethers": "^5.1.0"
   },
-  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start:mainnet": "FORK_NETWORK_ID=1 CHAIN_ID=3030 node tenderly.js",
-    "start:polygon": "FORK_NETWORK_ID=137 CHAIN_ID=3030 node tenderly.js",
-    "start:avalanche": "FORK_NETWORK_ID=43114 CHAIN_ID=3030 node tenderly.js",
+    "start": "node create.js",
     "fund:address": "node fund.js"
   },
   "author": "sakulstra",
