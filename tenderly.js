@@ -1,5 +1,9 @@
 require("dotenv").config();
 const axios = require("axios");
+const ethers = require("ethers");
+const { hexStripZeros, hexZeroPad } = require("@ethersproject/bytes");
+const { keccak256 } = require("@ethersproject/keccak256");
+const { defaultAbiCoder } = require("@ethersproject/abi");
 
 const TENDERLY_KEY = process.env.TENDERLY_KEY;
 const TENDERLY_ACCOUNT = process.env.TENDERLY_ACCOUNT;
@@ -40,6 +44,41 @@ class TenderlyFork {
     );
   }
 
+  async deal(address, amount) {
+    if (!this.fork_id) throw new Error("Fork not initialized!");
+    const tokens = [
+      "0xae7ab96520de3a18e5e111b5eaab095312d7fe84", // stETH - doesn't work
+      "0x6b175474e89094c44da98b954eedeac495271d0f", // DAI
+      "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", // USDC
+    ];
+    const storage = tokens.reduce((acc, token) => {
+      acc[token] = {
+        storage: {
+          [getSolidityStorageSlotBytes("0x00", address)]: hexZeroPad(
+            ethers.utils.parseEther(String(amount)).toHexString(),
+            32
+          ),
+        },
+      };
+      return acc;
+    }, {});
+    console.log("Funding various tokens");
+    await tenderly.post(
+      `account/${TENDERLY_ACCOUNT}/project/${TENDERLY_PROJECT}/fork/${this.fork_id}/simulate`,
+      {
+        from: "0x0000000000000000000000000000000000000000",
+        to: "0xBd770416a3345F91E4B34576cb804a576fa48EB1",
+        input: "0xef690cc0",
+        gas: 1000000,
+        gas_price: "0",
+        value: 0,
+        save: true,
+        state_objects: storage,
+      }
+    );
+    console.log("Funding complete");
+  }
+
   get_rpc_url() {
     if (!this.fork_id) throw new Error("Fork not initialized!");
     return `https://rpc.tenderly.co/fork/${this.fork_id}`;
@@ -50,6 +89,20 @@ class TenderlyFork {
       `account/${TENDERLY_ACCOUNT}/project/${TENDERLY_PROJECT}/fork/${this.fork_id}`
     );
   }
+}
+
+/**
+ * @notice Returns the storage slot for a Solidity mapping with bytes32 keys, given the slot of the mapping itself
+ * @dev Read more at https://docs.soliditylang.org/en/latest/internals/layout_in_storage.html#mappings-and-dynamic-arrays
+ * @param mappingSlot Mapping slot in storage
+ * @param key Mapping key to find slot for
+ * @returns Storage slot
+ */
+function getSolidityStorageSlotBytes(mappingSlot, key) {
+  const slot = hexZeroPad(mappingSlot, 32);
+  return hexStripZeros(
+    keccak256(defaultAbiCoder.encode(["address", "uint256"], [key, slot]))
+  );
 }
 
 module.exports = { TenderlyFork };

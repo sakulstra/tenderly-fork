@@ -11,10 +11,12 @@ async function main() {
   await fork.init(FORK_NETWORK_ID, CHAIN_ID);
   console.log("rpcUrl", fork.get_rpc_url());
   console.log("chainId", CHAIN_ID);
+  console.log("address", ETH_ADDRESS);
   console.log("");
   if (ETH_ADDRESS) {
     console.log(`Funding ${ETH_ADDRESS} with 10000 of the native currency.`);
     await fork.fund_account(ETH_ADDRESS, 10000);
+    await fork.deal(ETH_ADDRESS, 100);
   } else {
     console.log("No ETH_ADDRESS was provided so funding is skipped.");
   }
