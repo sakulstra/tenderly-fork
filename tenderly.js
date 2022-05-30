@@ -97,7 +97,13 @@ class TenderlyFork {
         root: head,
       }
     );
-    console.log(response.data);
+
+    await tenderly.put(
+      `account/${TENDERLY_ACCOUNT}/project/${TENDERLY_PROJECT}/fork/${this.fork_id}`,
+      {
+        fork_head: response.data.simulation.id,
+      }
+    );
     console.log("Funding complete");
   }
 
