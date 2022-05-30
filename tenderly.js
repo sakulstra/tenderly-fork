@@ -34,7 +34,8 @@ class TenderlyFork {
       }
     );
     this.fork_id = response.data.simulation_fork.id;
-    this.root = response.data.root_transaction.id;
+    this.forkNetworkId = forkNetworkId;
+    this.chainId = chainId;
   }
 
   async getHead() {
@@ -55,7 +56,6 @@ class TenderlyFork {
 
   async deal(address, amount) {
     const head = await this.getHead();
-    console.log(head);
     if (!this.fork_id) throw new Error("Fork not initialized!");
     const tokens = [
       //{ address: "0xae7ab96520de3a18e5e111b5eaab095312d7fe84", slot: 1 }, // stETH - doesn't work
@@ -64,19 +64,26 @@ class TenderlyFork {
       // "0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9", // AAVE (key, slot) 0
       // "0xba100000625a3754423978a60c9317c58a424e3d", // BAL (key slot) 1
     ];
-    const storage = tokens.reduce((acc, token) => {
-      acc[token.address] = {
-        storage: {
-          [getSolidityStoageSlotUint256(token.slot, address)]: hexZeroPad(
-            ethers.utils.parseEther(String(amount)).toHexString(),
-            32
-          ),
+    const storage = tokens.reduce(
+      (acc, token) => {
+        acc[token.address] = {
+          storage: {
+            [getSolidityStoageSlotUint256(token.slot, address)]: hexZeroPad(
+              ethers.utils.parseEther(String(amount)).toHexString(),
+              32
+            ),
+          },
+        };
+        return acc;
+      },
+      {
+        [address]: {
+          balance: ethers.utils.parseEther(String(amount)).toString(),
         },
-      };
-      return acc;
-    }, {});
+      }
+    );
     console.log("Funding various tokens");
-    await tenderly.post(
+    const response = await tenderly.post(
       `account/${TENDERLY_ACCOUNT}/project/${TENDERLY_PROJECT}/fork/${this.fork_id}/simulate`,
       {
         from: "0x0000000000000000000000000000000000000000",
@@ -90,6 +97,7 @@ class TenderlyFork {
         root: head,
       }
     );
+    console.log(response.data);
     console.log("Funding complete");
   }
 
