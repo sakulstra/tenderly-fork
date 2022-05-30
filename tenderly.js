@@ -34,6 +34,15 @@ class TenderlyFork {
       }
     );
     this.fork_id = response.data.simulation_fork.id;
+    this.root = response.data.root_transaction.id;
+  }
+
+  async getHead() {
+    const response = await tenderly.get(
+      `account/${TENDERLY_ACCOUNT}/project/${TENDERLY_PROJECT}/fork/${this.fork_id}`
+    );
+
+    return response.data.simulation_fork.global_head;
   }
 
   async fund_account(address, amount) {
@@ -45,16 +54,20 @@ class TenderlyFork {
   }
 
   async deal(address, amount) {
+    const head = await this.getHead();
+    console.log(head);
     if (!this.fork_id) throw new Error("Fork not initialized!");
     const tokens = [
-      "0xae7ab96520de3a18e5e111b5eaab095312d7fe84", // stETH - doesn't work
-      "0x6b175474e89094c44da98b954eedeac495271d0f", // DAI
-      "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", // USDC
+      //{ address: "0xae7ab96520de3a18e5e111b5eaab095312d7fe84", slot: 1 }, // stETH - doesn't work
+      { address: "0x6b175474e89094c44da98b954eedeac495271d0f", slot: 2 }, // DAI (key slot) 2
+      { address: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", slot: 9 }, // USDC (key, slot) 9
+      // "0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9", // AAVE (key, slot) 0
+      // "0xba100000625a3754423978a60c9317c58a424e3d", // BAL (key slot) 1
     ];
     const storage = tokens.reduce((acc, token) => {
-      acc[token] = {
+      acc[token.address] = {
         storage: {
-          [getSolidityStorageSlotBytes("0x00", address)]: hexZeroPad(
+          [getSolidityStoageSlotUint256(token.slot, address)]: hexZeroPad(
             ethers.utils.parseEther(String(amount)).toHexString(),
             32
           ),
@@ -74,6 +87,7 @@ class TenderlyFork {
         value: 0,
         save: true,
         state_objects: storage,
+        root: head,
       }
     );
     console.log("Funding complete");
@@ -102,6 +116,14 @@ function getSolidityStorageSlotBytes(mappingSlot, key) {
   const slot = hexZeroPad(mappingSlot, 32);
   return hexStripZeros(
     keccak256(defaultAbiCoder.encode(["address", "uint256"], [key, slot]))
+  );
+}
+
+function getSolidityStoageSlotUint256(mappingSlot, key) {
+  return hexStripZeros(
+    keccak256(
+      defaultAbiCoder.encode(["uint256", "uint256"], [key, mappingSlot])
+    )
   );
 }
 
