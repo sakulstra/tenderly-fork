@@ -42,3 +42,6 @@ In addition to that new fork markets should have appeared in the market selectio
 This is the market of your fork.
 
 Switch to the market and do whatever you want :tada:, always double check the selected network in your wallet provider to make sure transactions are executed only on the fork network.
+
+If you are using metamask, make sure to configure the tenderly fork rpcurl into your network config, see below as an example
+![image info](./fork-config-example.png)
