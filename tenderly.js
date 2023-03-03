@@ -44,10 +44,10 @@ class TenderlyFork {
   }
 
   async getERC20Token(walletAddress, tokenAddress, donorAddress, tokenCount) {
-    cy.log('walletAddress ' + walletAddress);
-    cy.log('tokenAddress ' + tokenAddress);
-    cy.log('donorAddress ' + donorAddress);
-    cy.log('tokenCount ' + tokenCount);
+    console.log('walletAddress ' + walletAddress);
+    console.log('tokenAddress ' + tokenAddress);
+    console.log('donorAddress ' + donorAddress);
+    console.log('tokenCount ' + tokenCount);
     let TOP_HOLDER_ADDRESS;
     const _url = this.get_rpc_url();
     const provider = getDefaultProvider(_url);
